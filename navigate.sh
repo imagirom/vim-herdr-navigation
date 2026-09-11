@@ -18,6 +18,16 @@ set -euo pipefail
 
 dir="${1:?usage: navigate.sh <left|down|up|right>}"
 herdr="${HERDR_BIN_PATH:-herdr}"
+# After `herdr update` replaces the binary under a still-running server, the
+# server-injected HERDR_BIN_PATH points at the deleted inode (reported as
+# ".../herdr (deleted)"), so every exec would fail with 127. Fall back to PATH.
+if ! [ -x "$herdr" ]; then
+  herdr="$(command -v herdr || true)"
+fi
+if [ -z "$herdr" ]; then
+  echo "navigate.sh: no usable herdr binary (HERDR_BIN_PATH stale and herdr not on PATH)" >&2
+  exit 127
+fi
 pane="${HERDR_PANE_ID:-}"
 
 case "$dir" in
