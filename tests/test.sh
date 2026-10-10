@@ -61,13 +61,13 @@ assert_command 'pane focus --direction right --pane w-test:p1'
 
 # Stale HERDR_BIN_PATH and nothing usable on PATH: fail loudly instead of
 # silently doing nothing.
+# Run bash by absolute path: with PATH emptied, the env shebang would fail first.
 if HERDR_PANE_ID=w-test:p1 HERDR_BIN_PATH="$tmp/nonexistent-herdr" PATH="$tmp/empty" \
-    "$repo/navigate.sh" right >/dev/null 2>&1; then
+    "$BASH" "$repo/navigate.sh" right >/dev/null 2>"$tmp/stderr"; then
   printf 'stale binary with no PATH fallback unexpectedly succeeded\n' >&2
   exit 1
 fi
-
-rm -f "$HERDR_NAV_TEST_LOG"
+grep -q 'no usable herdr binary' "$tmp/stderr"
 
 rm -f "$HERDR_NAV_TEST_LOG"
 export HERDR_NAV_TEST_REPO="$repo"
