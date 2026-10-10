@@ -45,6 +45,30 @@ if "$repo/navigate.sh" sideways >/dev/null 2>&1; then
   exit 1
 fi
 
+# Stale HERDR_BIN_PATH (e.g. the server binary was replaced by `herdr update`
+# without a server restart, leaving ".../herdr (deleted)"): fall back to `herdr`
+# on PATH.
+rm -f "$HERDR_NAV_TEST_LOG"
+mkdir -p "$tmp/bin"
+cat >"$tmp/bin/herdr" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >>"$HERDR_NAV_TEST_LOG"
+EOF
+chmod +x "$tmp/bin/herdr"
+HERDR_PANE_ID=w-test:p1 HERDR_BIN_PATH="$tmp/nonexistent-herdr" PATH="$tmp/bin:$PATH" \
+  "$repo/navigate.sh" right
+assert_command 'pane focus --direction right --pane w-test:p1'
+
+# Stale HERDR_BIN_PATH and nothing usable on PATH: fail loudly instead of
+# silently doing nothing.
+# Run bash by absolute path: with PATH emptied, the env shebang would fail first.
+if HERDR_PANE_ID=w-test:p1 HERDR_BIN_PATH="$tmp/nonexistent-herdr" PATH="$tmp/empty" \
+    "$BASH" "$repo/navigate.sh" right >/dev/null 2>"$tmp/stderr"; then
+  printf 'stale binary with no PATH fallback unexpectedly succeeded\n' >&2
+  exit 1
+fi
+grep -q 'no usable herdr binary' "$tmp/stderr"
+
 rm -f "$HERDR_NAV_TEST_LOG"
 export HERDR_NAV_TEST_REPO="$repo"
 export HERDR_PANE_ID=w-test:p1
