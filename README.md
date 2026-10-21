@@ -143,6 +143,10 @@ make build  # lint and validate the plugin manifest
   pane and the whole thing reads as one continuous move. With a single tab (or a
   single workspace) there is nowhere to go and the key does nothing, as before.
 
+  If a herdr call fails while crossing an edge, `navigate.sh` says so on stderr
+  and exits non-zero instead of quietly doing nothing; with spill off the
+  behaviour is unchanged.
+
   Set it where you launch herdr, so both herdr itself and the panes it starts see
   it — the editor side reads it from the pane's environment.
 - **`Ctrl+l` / `Ctrl+k` in shells.** Binding these globally shadows readline's
