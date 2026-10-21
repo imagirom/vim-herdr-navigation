@@ -149,6 +149,29 @@ HERDR_PANE_ID=w-test:p1 HERDR_NAV_SPILL=1 HERDR_NAV_TEST_FOCUS_CHANGED=false \
 grep -Fqx 'workspace focus w-c' "$HERDR_NAV_TEST_LOG"
 assert_command 'pane focus --direction down --current'
 
+# The other two directions, so each of the four (scope, step, land) triples in
+# navigate.sh's case statement is covered: with only right and up exercised, a
+# left or down that stepped the wrong way would pass. Three containers, not two
+# -- modulo 2 the two step directions are indistinguishable.
+#
+# Wrapping at the low end of the tabs: left from the first of three lands on the
+# last, then walks rightwards into it.
+rm -f "$HERDR_NAV_TEST_LOG"
+HERDR_PANE_ID=w-test:p1 HERDR_NAV_SPILL=1 HERDR_NAV_TEST_FOCUS_CHANGED=false \
+  HERDR_NAV_TEST_TABS='t1 t2 t3' HERDR_NAV_TEST_TAB=t1 \
+  "$repo/navigate.sh" left
+grep -Fqx 'tab focus t3' "$HERDR_NAV_TEST_LOG"
+assert_command 'pane focus --direction right --current'
+
+# Wrapping at the high end of the workspaces: down from the last of three lands
+# on the first, then walks upwards into it.
+rm -f "$HERDR_NAV_TEST_LOG"
+HERDR_PANE_ID=w-test:p1 HERDR_NAV_SPILL=1 HERDR_NAV_TEST_FOCUS_CHANGED=false \
+  HERDR_NAV_TEST_WORKSPACES='w-a w-b w-c' HERDR_NAV_TEST_WS=w-c \
+  "$repo/navigate.sh" down
+grep -Fqx 'workspace focus w-a' "$HERDR_NAV_TEST_LOG"
+assert_command 'pane focus --direction up --current'
+
 # A failed herdr call must report a failure, not exit 0 as if there had been
 # nowhere to go -- and herdr's own error text must survive to stderr. One
 # injection per call the tab path makes, in the order it makes them: the edge
