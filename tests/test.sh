@@ -182,7 +182,7 @@ for call in 'pane focus --direction right' 'tab list' 'tab focus' \
   if HERDR_PANE_ID=w-test:p1 HERDR_NAV_SPILL=1 HERDR_NAV_TEST_FOCUS_CHANGED=false \
       HERDR_NAV_TEST_TABS='t1 t2' HERDR_NAV_TEST_TAB=t1 HERDR_NAV_TEST_FAIL="$call" \
       "$repo/navigate.sh" right >/dev/null 2>"$tmp/spill-stderr"; then
-    printf 'a failed `herdr %s` unexpectedly succeeded\n' "$call" >&2
+    printf 'a failed herdr %s unexpectedly succeeded\n' "$call" >&2
     exit 1
   fi
   grep -q "navigate.sh: herdr $call failed" "$tmp/spill-stderr"
@@ -195,7 +195,7 @@ if HERDR_PANE_ID=w-test:p1 HERDR_NAV_SPILL=1 HERDR_NAV_TEST_FOCUS_CHANGED=false 
     HERDR_NAV_TEST_WORKSPACES='w-a w-b' HERDR_NAV_TEST_WS=w-a \
     HERDR_NAV_TEST_FAIL='workspace list' \
     "$repo/navigate.sh" up >/dev/null 2>"$tmp/spill-stderr"; then
-  printf 'a failed `herdr workspace list` unexpectedly succeeded\n' >&2
+  printf 'a failed herdr workspace list unexpectedly succeeded\n' >&2
   exit 1
 fi
 grep -q 'navigate.sh: herdr workspace list failed' "$tmp/spill-stderr"
